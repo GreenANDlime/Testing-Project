@@ -3,117 +3,167 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class PlayerMovementTutorial : MonoBehaviour
+public class PlayerMovement : MonoBehaviour
 {
-    [Header("Movement")]
+   [Header("Movement")]
     public float moveSpeed;
+    public float defaultSpeed = 3;
+    public float runSpeed = 5;
+    public float drag = 4f;
 
-    public float groundDrag;
-
-    public float jumpForce;
-    public float jumpCooldown;
-    public float airMultiplier;
-    bool readyToJump;
-
-    [HideInInspector] public float walkSpeed;
-    [HideInInspector] public float sprintSpeed;
+    [Header("Running")]
+    public float maxRunTime = 5f;
+    private float currentRunTime;
+    private bool isRunning;
 
     [Header("Keybinds")]
+    public KeyCode sprintKey = KeyCode.LeftShift;
     public KeyCode jumpKey = KeyCode.Space;
+    public KeyCode crouchKey = KeyCode.C;
 
-    [Header("Ground Check")]
-    public float playerHeight;
-    public LayerMask whatIsGround;
-    public bool grounded;
+    [Header("Crouching")]
+    public float crouchSpeed;
+    public float crouchYScale = 0.5f;
+    public float startYScale;
 
-    public Transform orientation;
+    [Header("Jumping & Gravity")]
+    public float jumpForce = 16f;
+    public float gravityMultiplier = 2f;
+    public Transform groundCheck;
+    public float groundCheckRadius = 0.3f;
+    public LayerMask groundLayer;
+    private bool isGrounded;
+  
 
-    float horizontalInput;
-    float verticalInput;
+    [Header("Orientation")]
+    public Transform orientation; // Reference for movement direction
 
-    Vector3 moveDirection;
+    private Rigidbody rb;
+    private float horizontalInput;
+    private float verticalInput;
+    private Vector3 moveDirection;
 
-    Rigidbody rb;
 
-    private void Start()
+
+    private void Awake()
     {
+        startYScale = transform.localScale.y;
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
-
-        readyToJump = true;
+        currentRunTime = maxRunTime;
     }
-
+   
     private void Update()
     {
-        // ground check
-        grounded = !Physics.CheckSphere(transform.position, 1f, whatIsGround);
-
-        MyInput();
-        SpeedControl();
-
-        // handle drag
-        if (grounded)
-            rb.linearDamping = groundDrag;
-        else
-            rb.linearDamping = 0;
+        HandleInput();
+        HandleRunning();
+        HandleJumping();
+        HandleCrouching();
     }
 
     private void FixedUpdate()
     {
+        ApplyGravity();
         MovePlayer();
     }
 
-    private void MyInput()
+    private void HandleInput()
     {
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
-
-        // when to jump
-        if(Input.GetKey(jumpKey) && readyToJump && grounded)
-        {
-            readyToJump = false;
-
-            Jump();
-
-            Invoke(nameof(ResetJump), jumpCooldown);
-        }
     }
 
     private void MovePlayer()
     {
-        // calculate movement direction
+        if (orientation == null)
+        {
+            Debug.LogError("Orientation is not assigned in PlayerMovement script!");
+            return;
+        }
+
+        // Movement is now based on the orientation GameObject
+
         moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
+        rb.linearDamping = drag;
 
-        // on ground
-        if(grounded)
-            rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);
 
-        // in air
-        else if(!grounded)
-            rb.AddForce(moveDirection.normalized * moveSpeed * 10f * airMultiplier, ForceMode.Force);
+        if (isGrounded && isRunning && !Input.GetKey(crouchKey) && currentRunTime > 0) // running
+        {
+            moveSpeed = runSpeed;
+        }
+        else if (isGrounded && Input.GetKey(crouchKey)) // crouching
+        {
+            moveSpeed = crouchSpeed;
+        }
+        else if (isGrounded && Input.GetKey(crouchKey) && Input.GetKey(sprintKey) && currentRunTime > 0) // faster crouching
+        {
+            moveSpeed = (crouchSpeed + defaultSpeed) / 2f;
+        }
+
+        else // walking
+        {
+            moveSpeed = defaultSpeed;
+        }
+
+        rb.AddForce(moveDirection.normalized * moveSpeed * 5f, ForceMode.Force);
     }
 
-    private void SpeedControl()
+    private void HandleCrouching() // shrinks player down to half size when crouching
     {
-        Vector3 flatVel = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+        crouchSpeed = defaultSpeed / 2f;
 
-        // limit velocity if needed
-        if(flatVel.magnitude > moveSpeed)
+        if (isGrounded && Input.GetKeyDown(crouchKey))
         {
-            Vector3 limitedVel = flatVel.normalized * moveSpeed;
-            rb.linearVelocity = new Vector3(limitedVel.x, rb.linearVelocity.y, limitedVel.z);
+            transform.localScale = new Vector3(transform.localScale.x, crouchYScale, transform.localScale.z); // shrinks player size
+            rb.AddForce(Vector3.down * 5f, ForceMode.Impulse); // pushes player down when the player shrinks
+            moveSpeed = crouchSpeed;
+        }
+
+        if (Input.GetKeyUp(KeyCode.C))
+        {
+            transform.localScale = new Vector3(transform.localScale.x, startYScale, transform.localScale.z);
+            moveSpeed = defaultSpeed;
         }
     }
 
-    private void Jump()
+    private void HandleRunning()
     {
-        // reset y velocity
-        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
 
-        rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+        isRunning = Input.GetKey(KeyCode.W) && Input.GetKey(KeyCode.LeftShift);
+
+        if (isRunning && currentRunTime > 0) // if player wishes to run
+        {
+            currentRunTime -= Time.deltaTime;
+        }
+        else
+        {
+            moveSpeed = (currentRunTime <= 0) ? defaultSpeed / 2 : defaultSpeed;
+            if (!isRunning && currentRunTime < maxRunTime)
+            {
+                currentRunTime += Time.deltaTime;
+            }
+        }
+
+        currentRunTime = Mathf.Clamp(currentRunTime, 0, maxRunTime);
     }
-    private void ResetJump()
+
+    private void HandleJumping()
+{
+    isGrounded = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer); // checks if player is on ground
+
+    if (isGrounded && Input.GetKeyDown(jumpKey))
     {
-        readyToJump = true;
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z); // resets your y velocity to ensure consistent vertical speed
+
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, jumpForce, rb.linearVelocity.z); // applies jumpforce
     }
+}
+    private void ApplyGravity()
+    {
+        if (!isGrounded)
+        {
+            rb.AddForce(Vector3.down * gravityMultiplier * 9.81f, ForceMode.Acceleration);
+        }
+    }
+
 }
