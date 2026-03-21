@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.InputSystem;
 using UnityEngine;
 using TMPro;
 
@@ -81,26 +82,24 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
-        // Movement is now based on the orientation GameObject
-
         moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
+        moveDirection.y = 0f;
+
         rb.linearDamping = drag;
 
-
-        if (isGrounded && isRunning && !Input.GetKey(crouchKey) && currentRunTime > 0) // running
-        {
-            moveSpeed = runSpeed;
-        }
-        else if (isGrounded && Input.GetKey(crouchKey)) // crouching
-        {
-            moveSpeed = crouchSpeed;
-        }
-        else if (isGrounded && Input.GetKey(crouchKey) && Input.GetKey(sprintKey) && currentRunTime > 0) // faster crouching
+        if (isGrounded && Input.GetKey(crouchKey) && Input.GetKey(sprintKey) && currentRunTime > 0)
         {
             moveSpeed = (crouchSpeed + defaultSpeed) / 2f;
         }
-
-        else // walking
+        else if (isGrounded && isRunning && !Input.GetKey(crouchKey) && currentRunTime > 0)
+        {
+            moveSpeed = runSpeed;
+        }
+        else if (isGrounded && Input.GetKey(crouchKey))
+        {
+            moveSpeed = crouchSpeed;
+        }
+        else
         {
             moveSpeed = defaultSpeed;
         }
