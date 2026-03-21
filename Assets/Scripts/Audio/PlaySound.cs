@@ -13,9 +13,6 @@ public class PlaySound : MonoBehaviour
 
     [Header("Finding Volume")]
     private int sampleSize = 256; // how many samples to read
-    private float[] samples;
-    private float rmsValue;
-    private float scaledValue;
     public float multiplier = 20f; // adjust sensitivity
     public Image volumeBar;
 
@@ -23,7 +20,6 @@ public class PlaySound : MonoBehaviour
     void Start()
     {
         soundONE.Play();
-        samples = new float[sampleSize];
     }
 
     // Update is called once per frame
@@ -31,7 +27,6 @@ public class PlaySound : MonoBehaviour
     {
         PlayAudio();
         PlayStepAudio();
-        GetRMS();
     }
 
     private void PlayAudio()
@@ -40,6 +35,9 @@ public class PlaySound : MonoBehaviour
         {
             soundONE.Play();
         }
+        PlayStepAudio();
+        volumeBar.fillAmount = GetRMS(soundONE) + GetRMS(soundTWO);
+
     }
 
     private void PlayStepAudio()
@@ -52,20 +50,26 @@ public class PlaySound : MonoBehaviour
             if(audioDuration > 0) audioDuration -= Time.deltaTime;
             else{
                 soundTWO.Stop();
+                soundTWO.volume = 1f;
                 audioDuration = Input.GetKey(KeyCode.LeftShift) ? 1f : 1.5f;
             }
         }
         else{
-            soundTWO.Stop();
+            if(soundTWO.isPlaying) soundTWO.volume = Mathf.MoveTowards(soundTWO.volume, 0, Time.deltaTime / 2);
+            if(soundTWO.volume == 0){
+                soundTWO.Stop();
+                soundTWO.volume = 1f;
+            }
             audioDuration = Input.GetKey(KeyCode.LeftShift) ? 1f : 1.5f;
         }
     }
 
-    private void GetRMS()
+    private float GetRMS(AudioSource source)
     {
-        if (!soundONE.isPlaying) return;
+        float[] samples = new float[sampleSize];
+        if (!source.isPlaying) return 0;
 
-        soundONE.GetOutputData(samples, 0);
+        source.GetOutputData(samples, 0);
 
         float sum = 0f;
 
@@ -74,10 +78,10 @@ public class PlaySound : MonoBehaviour
             sum += samples[i] * samples[i];
         }
 
-        rmsValue = Mathf.Sqrt(sum / samples.Length);
+        float rmsValue = Mathf.Sqrt(sum / samples.Length);
 
         // scaled version for use in gameplay
-        scaledValue = rmsValue * multiplier;
-        volumeBar.fillAmount = scaledValue;
+        float scaledValue = rmsValue * multiplier;
+        return scaledValue;
     }
 }

@@ -1725,10 +1725,10 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: a5033ceeb662343359a3560e0e8747ac, type: 3}
-  m_Resource: {fileID: 8300000, guid: a5033ceeb662343359a3560e0e8747ac, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 4ae75162905ac4b149042db30f4d9473, type: 3}
+  m_Resource: {fileID: 8300000, guid: 4ae75162905ac4b149042db30f4d9473, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.1
+  m_Volume: 1
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -1825,6 +1825,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5212270138614005735, guid: f8c9532bc37694e62b80b4a8a31d01f7, type: 3}
+      propertyPath: runSpeed
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 5212270138614005735, guid: f8c9532bc37694e62b80b4a8a31d01f7, type: 3}
+      propertyPath: defaultSpeed
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 5650386380970912191, guid: f8c9532bc37694e62b80b4a8a31d01f7, type: 3}
       propertyPath: m_Name
       value: Player
@@ -1897,6 +1905,10 @@ PrefabInstance:
       propertyPath: soundONE
       value: 
       objectReference: {fileID: 503933179}
+    - target: {fileID: 7102746459738079831, guid: f8c9532bc37694e62b80b4a8a31d01f7, type: 3}
+      propertyPath: soundTWO
+      value: 
+      objectReference: {fileID: 2074494870}
     - target: {fileID: 7102746459738079831, guid: f8c9532bc37694e62b80b4a8a31d01f7, type: 3}
       propertyPath: volumeBar
       value: 
