@@ -109,7 +109,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleCrouching() // shrinks player down to half size when crouching
     {
-        crouchSpeed = defaultSpeed / 2f;
+        crouchSpeed = defaultSpeed / 1.1f;
 
         if (isGrounded && Input.GetKeyDown(crouchKey))
         {

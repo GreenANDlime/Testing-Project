@@ -9,6 +9,7 @@ public class PlaySound : MonoBehaviour
     [SerializeField] private AudioSource soundONE;
     [SerializeField] private AudioSource soundTWO;
     private bool playAudio;
+    private float volumeLevel;
     private float audioDuration = 1.5f;
 
     [Header("Finding Volume")]
@@ -36,7 +37,8 @@ public class PlaySound : MonoBehaviour
             soundONE.Play();
         }
         PlayStepAudio();
-        volumeBar.fillAmount = GetRMS(soundONE) + GetRMS(soundTWO);
+        volumeLevel = GetRMS(soundONE) + GetRMS(soundTWO);
+        volumeBar.fillAmount = volumeLevel;
 
     }
 
@@ -44,6 +46,12 @@ public class PlaySound : MonoBehaviour
     {
         if(Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D)){
             if (!soundTWO.isPlaying){
+                if(Input.GetKey(KeyCode.C)){ 
+                    soundTWO.volume = 0.3f;
+                    soundTWO.pitch = 0.3f;
+                }
+                else soundTWO.pitch = 1f;
+
                 soundTWO.time = 0.2f;
                 soundTWO.Play();
             }
@@ -51,7 +59,7 @@ public class PlaySound : MonoBehaviour
             else{
                 soundTWO.Stop();
                 soundTWO.volume = 1f;
-                audioDuration = Input.GetKey(KeyCode.LeftShift) ? 1f : 1.5f;
+                audioDuration = Input.GetKey(KeyCode.LeftShift) ? 1.5f : 2f;
             }
         }
         else{
@@ -60,7 +68,7 @@ public class PlaySound : MonoBehaviour
                 soundTWO.Stop();
                 soundTWO.volume = 1f;
             }
-            audioDuration = Input.GetKey(KeyCode.LeftShift) ? 1f : 1.5f;
+            audioDuration = Input.GetKey(KeyCode.LeftShift) ? 1.5f : 2f;
         }
     }
 
@@ -83,5 +91,10 @@ public class PlaySound : MonoBehaviour
         // scaled version for use in gameplay
         float scaledValue = rmsValue * multiplier;
         return scaledValue;
+    }
+
+    public float ReturnVolume()
+    {
+        return volumeLevel;
     }
 }
