@@ -124,13 +124,20 @@ public class NoiseDetection : MonoBehaviour
         else if(monsterState == state.Investigating)
         {
             if(!delay){
+                hearDuration = (hearDuration <= 0 || (DetectNoise(15f) && hearDuration > 0)) ? defaultHearing : CountDown(hearDuration);
                 foreach(Vector3 location in noiseLocations){
                     transform.position = Vector3.MoveTowards(transform.position, location, Time.deltaTime * 1.5f);
                 }
-                if(DetectNoise(10f)){
+                if(DetectNoise(10f) && hearDuration > 0){
                     monsterState = state.Chasing;
                     audioSource.PlayOneShot(monsterAudios[0]);
                     StartCoroutine(Delay(2f));
+                    noiseLocations.Clear();
+                }
+                else if(hearDuration <= 0){
+                    monsterState = state.Wandering;
+                    noiseLocations.Clear();
+                    chaseTargets.Clear();
                 }
             }
         }
