@@ -239,6 +239,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Monster Placeholder (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 2932975421212198900, guid: 8b8315e221b1540cc84131e018f4d6a6, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3539528747710379580, guid: 8b8315e221b1540cc84131e018f4d6a6, type: 3}
       propertyPath: m_LocalPosition.x
       value: -15.6
@@ -793,6 +797,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Monster Placeholder (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 2932975421212198900, guid: 8b8315e221b1540cc84131e018f4d6a6, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3539528747710379580, guid: 8b8315e221b1540cc84131e018f4d6a6, type: 3}
       propertyPath: m_LocalPosition.x
       value: -17.475739
@@ -838,6 +846,30 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8b8315e221b1540cc84131e018f4d6a6, type: 3}
+--- !u!1 &994740978 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2932975421212198900, guid: 8b8315e221b1540cc84131e018f4d6a6, type: 3}
+  m_PrefabInstance: {fileID: 2613812305605419274}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &994740979
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 994740978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe6c1425a94d541fa9e2e8ef91303497, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  monsterState: 0
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 4096
+  delay: 0
+  defaultHearing: 5
+  hearDuration: 0
 --- !u!1 &999272637
 GameObject:
   m_ObjectHideFlags: 0
@@ -1763,7 +1795,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2074494869}
   - component: {fileID: 2074494870}
-  m_Layer: 11
+  m_Layer: 12
   m_Name: Footsteps Audio
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1934,10 +1966,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3807404522948287880, guid: 8b8315e221b1540cc84131e018f4d6a6, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2932975421212198900, guid: 8b8315e221b1540cc84131e018f4d6a6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 994740979}
   m_SourcePrefab: {fileID: 100100000, guid: 8b8315e221b1540cc84131e018f4d6a6, type: 3}
 --- !u!1001 &8127850298338721825
 PrefabInstance:
@@ -1965,11 +2004,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5650386380970912191, guid: f8c9532bc37694e62b80b4a8a31d01f7, type: 3}
       propertyPath: m_Layer
-      value: 11
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 5650386380970912191, guid: f8c9532bc37694e62b80b4a8a31d01f7, type: 3}
+      propertyPath: m_TagString
+      value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 6104737285316534724, guid: f8c9532bc37694e62b80b4a8a31d01f7, type: 3}
       propertyPath: m_Layer
-      value: 11
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 6267875937665985602, guid: f8c9532bc37694e62b80b4a8a31d01f7, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2013,7 +2056,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6295474206884008401, guid: f8c9532bc37694e62b80b4a8a31d01f7, type: 3}
       propertyPath: m_Layer
-      value: 11
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 6528668394572868481, guid: f8c9532bc37694e62b80b4a8a31d01f7, type: 3}
       propertyPath: Loop
@@ -2037,11 +2080,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6556695451910891345, guid: f8c9532bc37694e62b80b4a8a31d01f7, type: 3}
       propertyPath: m_Layer
-      value: 11
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 6652944541593220699, guid: f8c9532bc37694e62b80b4a8a31d01f7, type: 3}
       propertyPath: m_Layer
-      value: 11
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 6892043470752930328, guid: f8c9532bc37694e62b80b4a8a31d01f7, type: 3}
       propertyPath: m_Name
@@ -2049,7 +2092,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6892043470752930328, guid: f8c9532bc37694e62b80b4a8a31d01f7, type: 3}
       propertyPath: m_Layer
-      value: 11
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 7102746459738079831, guid: f8c9532bc37694e62b80b4a8a31d01f7, type: 3}
       propertyPath: soundONE
@@ -2065,11 +2108,11 @@ PrefabInstance:
       objectReference: {fileID: 1269282985}
     - target: {fileID: 7243036229746353030, guid: f8c9532bc37694e62b80b4a8a31d01f7, type: 3}
       propertyPath: m_Layer
-      value: 11
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 7379710816499085466, guid: f8c9532bc37694e62b80b4a8a31d01f7, type: 3}
       propertyPath: m_Layer
-      value: 11
+      value: 12
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

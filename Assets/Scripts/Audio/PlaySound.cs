@@ -8,9 +8,12 @@ public class PlaySound : MonoBehaviour
     [Header("Audio Sources")]
     [SerializeField] private AudioSource soundONE;
     [SerializeField] private AudioSource soundTWO;
+
+    private bool isMoving;
     private bool playAudio;
     private float volumeLevel;
     private float audioDuration = 1.5f;
+    private float startTime;
 
     [Header("Finding Volume")]
     private int sampleSize = 256; // how many samples to read
@@ -18,6 +21,11 @@ public class PlaySound : MonoBehaviour
     public Image volumeBar;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
+
+    void Awake()
+    {
+        isMoving = Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D);
+    }
     void Start()
     {
         soundONE.Play();
@@ -27,7 +35,6 @@ public class PlaySound : MonoBehaviour
     void Update()
     {
         PlayAudio();
-        PlayStepAudio();
     }
 
     private void PlayAudio()
@@ -97,4 +104,7 @@ public class PlaySound : MonoBehaviour
     {
         return volumeLevel;
     }
+
+
+
 }
