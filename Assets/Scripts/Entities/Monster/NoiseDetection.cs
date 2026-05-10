@@ -24,7 +24,6 @@ public class NoiseDetection : MonoBehaviour
     [SerializeField] private float defaultHearing;
     [SerializeField] private float hearDuration;
     [SerializeField] private List<Vector3> noiseLocations = new List<Vector3>();
-    [SerializeField] private List<Transform> chaseTargets = new List<Transform>();
     [SerializeField] private List<AudioClip> monsterAudios = new List<AudioClip>();
     
     
@@ -59,12 +58,16 @@ public class NoiseDetection : MonoBehaviour
                     PlaySound playSound = playerSound.GetComponent<PlaySound>();
                     
                     // Remembers either position of where noise came from or locks onto player indeffinetly
-                    if(playSound.ReturnVolume() > 0.6f && monsterState == state.Listening){
+                    if(playSound.ReturnVolume() > 0.6f && (monsterState == state.Listening || monsterState == state.Chasing)){
                         Vector3 targetPosition = playerParent.position;
                         targetPosition.y = transform.position.y;
+                        noiseLocations.Clear();
                         noiseLocations.Add(targetPosition);
                     }
-                    else if(playSound.ReturnVolume() > 0.6f && monsterState == state.Investigating) chaseTargets.Add(playerParent);
+                    else if(playSound.ReturnVolume() > 0.6f && monsterState == state.Investigating){
+                        noiseLocations.Clear();
+                        noiseLocations.Add(playerParent.position);
+                    }
 
                     return playSound.ReturnVolume() > 0.6f;
                 }
@@ -132,18 +135,29 @@ public class NoiseDetection : MonoBehaviour
                     monsterState = state.Chasing;
                     audioSource.PlayOneShot(monsterAudios[0]);
                     StartCoroutine(Delay(2f));
-                    noiseLocations.Clear();
                 }
                 else if(hearDuration <= 0){
                     monsterState = state.Wandering;
                     noiseLocations.Clear();
-                    chaseTargets.Clear();
                 }
             }
         }
         else if(monsterState == state.Chasing)
         {
-            if(!delay) transform.position = Vector3.MoveTowards(transform.position, chaseTargets[0].position, Time.deltaTime * 4.5f);
+            if(!delay){
+                hearDuration = (hearDuration <= 0 || (DetectNoise(15f) && hearDuration > 0)) ? defaultHearing * 2f : CountDown(hearDuration);
+                foreach(Vector3 targetPos in noiseLocations){
+                    transform.position = Vector3.MoveTowards(transform.position, targetPos, Time.deltaTime * 4.5f);
+                }
+                if(DetectNoise(15f) && !(hearDuration <= 0)){
+                    monsterState = state.Chasing;
+                }
+                else if(hearDuration <= 0){
+                    monsterState = state.Wandering;
+                    noiseLocations.Clear();
+                }
+            }
+            
         }
         
     }
