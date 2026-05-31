@@ -107,6 +107,73 @@ MonoBehaviour:
   clamp:
     m_OverrideState: 1
     m_Value: 0.05
+--- !u!114 &-7350864423428114452
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a074ec59f6e910b4e8c49f57e56cf95a, type: 3}
+  m_Name: VolumetricFogVolumeComponent
+  m_EditorClassIdentifier: 
+  active: 1
+  distance:
+    m_OverrideState: 1
+    m_Value: 64
+  baseHeight:
+    m_OverrideState: 1
+    m_Value: 0
+  maximumHeight:
+    m_OverrideState: 1
+    m_Value: 50
+  enableGround:
+    m_OverrideState: 1
+    m_Value: 0
+  groundHeight:
+    m_OverrideState: 1
+    m_Value: 0
+  density:
+    m_OverrideState: 1
+    m_Value: 0.2
+  attenuationDistance:
+    m_OverrideState: 1
+    m_Value: 128
+  enableAPVContribution:
+    m_OverrideState: 1
+    m_Value: 0
+  APVContributionWeight:
+    m_OverrideState: 1
+    m_Value: 1
+  enableMainLightContribution:
+    m_OverrideState: 1
+    m_Value: 0
+  anisotropy:
+    m_OverrideState: 1
+    m_Value: 0.4
+  scattering:
+    m_OverrideState: 1
+    m_Value: 0.15
+  tint:
+    m_OverrideState: 1
+    m_Value: {r: 1, g: 1, b: 1, a: 1}
+  enableAdditionalLightsContribution:
+    m_OverrideState: 1
+    m_Value: 0
+  maxSteps:
+    m_OverrideState: 1
+    m_Value: 128
+  blurIterations:
+    m_OverrideState: 1
+    m_Value: 2
+  enabled:
+    m_OverrideState: 1
+    m_Value: 0
+  renderPassEvent:
+    m_OverrideState: 1
+    m_Value: 550
 --- !u!114 &-7274224791359825572
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -922,6 +989,91 @@ MonoBehaviour:
   scale:
     m_OverrideState: 1
     m_Value: 1
+--- !u!114 &8652011756261548184
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e63a7256f05dd45dcb447845f6b4efc1, type: 3}
+  m_Name: VolumetricFogVolumeComponent
+  m_EditorClassIdentifier: 
+  active: 1
+  fogDensity:
+    m_OverrideState: 1
+    m_Value: 0.08
+  heightDensity:
+    m_OverrideState: 1
+    m_Value: 0.5
+  fogBaseHeight:
+    m_OverrideState: 1
+    m_Value: 0
+  heightFalloff:
+    m_OverrideState: 1
+    m_Value: 0.15
+  fogColorNear:
+    m_OverrideState: 1
+    m_Value: {r: 0.7, g: 0.8, b: 0.9, a: 1}
+  fogColorFar:
+    m_OverrideState: 1
+    m_Value: {r: 0.5, g: 0.65, b: 0.85, a: 1}
+  scatteringColor:
+    m_OverrideState: 1
+    m_Value: {r: 1, g: 0.9, b: 0.7, a: 1}
+  scatteringStrength:
+    m_OverrideState: 1
+    m_Value: 0.6
+  mieG:
+    m_OverrideState: 1
+    m_Value: 0.76
+  rayMarchSteps:
+    m_OverrideState: 1
+    m_Value: 32
+  stepSize:
+    m_OverrideState: 1
+    m_Value: 2
+  maxDistance:
+    m_OverrideState: 1
+    m_Value: 400
+  noiseScale:
+    m_OverrideState: 1
+    m_Value: 0.015
+  noiseStrength:
+    m_OverrideState: 1
+    m_Value: 0.45
+  noiseScrollSpeed:
+    m_OverrideState: 1
+    m_Value: {x: 0.02, y: 0.005, z: 0.015}
+  detailNoiseScale:
+    m_OverrideState: 1
+    m_Value: 0.04
+  detailNoiseStrength:
+    m_OverrideState: 1
+    m_Value: 0.25
+  windDirection:
+    m_OverrideState: 1
+    m_Value: {x: 1, y: 0, z: 0.5}
+  windSpeed:
+    m_OverrideState: 1
+    m_Value: 0.3
+  ambientFogBrightness:
+    m_OverrideState: 1
+    m_Value: 0.15
+  shadowAbsorption:
+    m_OverrideState: 1
+    m_Value: 0.4
+  depthSoftFade:
+    m_OverrideState: 1
+    m_Value: 0.5
+  syncWithSunColor:
+    m_OverrideState: 1
+    m_Value: 1
+  sunColorInfluence:
+    m_OverrideState: 1
+    m_Value: 0.35
 --- !u!114 &9001657382290151224
 MonoBehaviour:
   m_ObjectHideFlags: 3

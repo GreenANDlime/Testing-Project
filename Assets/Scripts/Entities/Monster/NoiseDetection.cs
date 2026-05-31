@@ -16,26 +16,49 @@ public class NoiseDetection : MonoBehaviour
 
     public state monsterState;
     public LayerMask targetLayer;
-    private AudioSource audioSource;
+    private AudioSource[] audioSources;
 
     private float xPos;
     private float zPos;
+    public float rbVelocity;
+    private Vector3 lastPosition;
     public bool delay;
+    public bool isMoving;
+    private bool hasAnimations;
+    private Rigidbody rb;
+    public Animator anim;
+    private float rotationVelocity;
+
+    [Header("Hearing Level")]
     [SerializeField] private float defaultHearing;
     [SerializeField] private float hearDuration;
+    [SerializeField] private GameObject moveBone;
+    [SerializeField] private float smoothRotation;
     [SerializeField] private List<Vector3> noiseLocations = new List<Vector3>();
     [SerializeField] private List<AudioClip> monsterAudios = new List<AudioClip>();
+
     
     
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
+        Vector3 monsterPos = moveBone != null ? moveBone.transform.position : transform.position;
+
         monsterState = state.Wandering;
-        xPos = transform.position.x;
-        zPos = transform.position.z;
+        xPos = monsterPos.x;
+        zPos = monsterPos.z;
         hearDuration = defaultHearing;
-        audioSource = GetComponentInChildren<AudioSource>();
+        audioSources = GetComponentsInChildren<AudioSource>();
+        rb = GetComponent<Rigidbody>();
+        rb.constraints = RigidbodyConstraints.FreezeRotation;
+    }
+
+    void Start()
+    {
+        hasAnimations = moveBone != null;
+        Vector3 monsterPos = hasAnimations ? moveBone.transform.position : transform.position;
+        lastPosition = monsterPos;
     }
 
     // Update is called once per frame
@@ -43,10 +66,17 @@ public class NoiseDetection : MonoBehaviour
     {
         MonsterMovements();
     }
+    void FixedUpdate()
+    {
+        // isMoving = rb.linearVelocity.magnitude > 0f;
+        rbVelocity = rb.linearVelocity.magnitude;
+    }
     
     private bool DetectNoise(float hearRange)
     {
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, hearRange, targetLayer);
+        Vector3 monsterPos = hasAnimations ? moveBone.transform.position : transform.position;
+
+        Collider[] hitColliders = Physics.OverlapSphere(monsterPos, hearRange, targetLayer);
         foreach(var entity in hitColliders)
         {
             if(entity.transform.parent != null)
@@ -60,7 +90,7 @@ public class NoiseDetection : MonoBehaviour
                     // Remembers either position of where noise came from or locks onto player indeffinetly
                     if(playSound.ReturnVolume() > 0.6f && (monsterState == state.Listening || monsterState == state.Chasing)){
                         Vector3 targetPosition = playerParent.position;
-                        targetPosition.y = transform.position.y;
+                        targetPosition.y = monsterPos.y;
                         noiseLocations.Clear();
                         noiseLocations.Add(targetPosition);
                     }
@@ -78,12 +108,14 @@ public class NoiseDetection : MonoBehaviour
 
     private Vector3 RandomizePosition()
     {
-        if(transform.position.x == xPos && transform.position.z == zPos){
-            xPos = Random.Range(-25, -5);
-            zPos = Random.Range(0, 20);
+        Vector3 monsterPos = hasAnimations ? moveBone.transform.position : transform.position;
+
+        if(monsterPos.x == xPos && monsterPos.z == zPos){
+            xPos = Random.Range(monsterPos.x - 15, monsterPos.x - 5);
+            zPos = Random.Range(monsterPos.z + 15 , monsterPos.z + 20);
         }
 
-        Vector3 targetPosition = new Vector3(xPos, transform.position.y, zPos);
+        Vector3 targetPosition = new Vector3(xPos, monsterPos.y, zPos);
 
         return targetPosition;
     }
@@ -103,15 +135,48 @@ public class NoiseDetection : MonoBehaviour
         delay = false;
     }
 
+    private void LocatePosition(Vector3 targetPos, float speed)
+    {
+        if(hasAnimations){
+            targetPos.y = moveBone.transform.position.y;
+            Vector3 direction = (targetPos - moveBone.transform.position).normalized;
+            Vector3 customForward = moveBone.transform.right.normalized;
+            float signedAngle = Vector3.SignedAngle(customForward, direction, Vector3.forward);
+
+            Vector3 currentEuler = moveBone.transform.eulerAngles;
+            float targetZ = currentEuler.z + Mathf.DeltaAngle(0f, signedAngle);
+
+            float smoothZ = Mathf.SmoothDampAngle(currentEuler.z, targetZ, ref rotationVelocity, smoothRotation);
+            moveBone.transform.rotation = Quaternion.Euler(currentEuler.x, currentEuler.y, smoothZ);
+            moveBone.transform.position = Vector3.MoveTowards(moveBone.transform.position, targetPos, Time.deltaTime * speed);
+
+        }
+        else{
+            targetPos.y = transform.position.y;
+            transform.position = Vector3.MoveTowards(transform.position, targetPos, Time.deltaTime * speed);
+        }
+
+
+    }
     private void MonsterMovements()
     {
+        if(monsterState != state.Listening && !delay){
+            isMoving = true;
+            anim.SetBool("isMoving", true);
+        }
+        else{
+            isMoving = false;
+            anim.SetBool("isMoving", false);
+        }
+
         if(monsterState == state.Wandering)
         {
+            audioSources[0].pitch = 1f;
             if(DetectNoise(10f)){
                 monsterState = state.Listening;
                 StartCoroutine(Delay(3f));
             }
-            else transform.position = Vector3.MoveTowards(transform.position, RandomizePosition(), Time.deltaTime * 2.5f);
+            else LocatePosition(RandomizePosition(), 2.5f);
         }
         else if(monsterState == state.Listening)
         {
@@ -129,11 +194,12 @@ public class NoiseDetection : MonoBehaviour
             if(!delay){
                 hearDuration = (hearDuration <= 0 || (DetectNoise(15f) && hearDuration > 0)) ? defaultHearing : CountDown(hearDuration);
                 foreach(Vector3 location in noiseLocations){
-                    transform.position = Vector3.MoveTowards(transform.position, location, Time.deltaTime * 1.5f);
+                    LocatePosition(location, 1.5f);
                 }
                 if(DetectNoise(10f) && hearDuration > 0){
                     monsterState = state.Chasing;
-                    audioSource.PlayOneShot(monsterAudios[0]);
+                    rb.linearVelocity = Vector3.zero;
+                    audioSources[1].PlayOneShot(monsterAudios[0]);
                     StartCoroutine(Delay(2f));
                 }
                 else if(hearDuration <= 0){
@@ -145,9 +211,15 @@ public class NoiseDetection : MonoBehaviour
         else if(monsterState == state.Chasing)
         {
             if(!delay){
+                audioSources[0].pitch = 3f;
                 hearDuration = (hearDuration <= 0 || (DetectNoise(15f) && hearDuration > 0)) ? defaultHearing * 2f : CountDown(hearDuration);
                 foreach(Vector3 targetPos in noiseLocations){
-                    transform.position = Vector3.MoveTowards(transform.position, targetPos, Time.deltaTime * 4.5f);
+                    Vector3 newTargetPos = targetPos;
+                    if(hasAnimations){
+                        newTargetPos.y = moveBone.transform.position.y;
+                    }
+                    else newTargetPos.y = transform.position.y;
+                    LocatePosition(newTargetPos, 4.5f);
                 }
                 if(DetectNoise(15f) && !(hearDuration <= 0)){
                     monsterState = state.Chasing;
@@ -159,6 +231,5 @@ public class NoiseDetection : MonoBehaviour
             }
             
         }
-        
     }
 }
