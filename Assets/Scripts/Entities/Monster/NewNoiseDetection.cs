@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using UnityEngine.AI;
 
 
 
@@ -14,23 +15,28 @@ public class NewNoiseDetection : MonoBehaviour
         Staring
     }
     public state monsterState;
-    public float visibility;
+    public NavMeshAgent agent;
     private Dictionary<string, int> scores = new Dictionary<string, int>();
     private Renderer objRenderer;
     private float lookDuration;
     private Vector3 lookTarget;
-    [SerializeField] private List<Vector3> noiseLocations = new List<Vector3>();
-    [SerializeField] private float duration;
-    [Header("Layer Mask")]
-    [SerializeField] private LayerMask target;
-    [SerializeField] private LayerMask obstacleMask;
-    [SerializeField] private LayerMask playerMask;
 
+
+    
+    [SerializeField] private float duration;
+
+    [Header("Layer Mask")]
+    [SerializeField] private LayerMask target; // most likely going to be targets to avoid detecting like other enemies
+    [SerializeField] private LayerMask obstacleMask; // define whats considered an obstacle
+    [SerializeField] private LayerMask playerMask; // define whos player
+
+    [Header("Noise Detection")]
     [SerializeField] private AudioSource[] audiosSources;
     [SerializeField] private AudioSource noiseIndicator; // this is for testing remove it for the final script
     [SerializeField] private AudioClip audioFile; // this is for testing remove it for the final script
     [SerializeField] private bool noiseDetected; // this is for testing remove it for the final script
     [SerializeField] private float soundSensitivity;
+    [SerializeField] private List<Vector3> noiseLocations = new List<Vector3>();
 
     private Vector3 currentDir;
 
@@ -108,7 +114,8 @@ public class NewNoiseDetection : MonoBehaviour
                     
                     if (!blocked && hittingPlayer && targetInfo.collider == hit)
                     {
-                        Debug.Log("Monster sees player"); // this is for testing purposes
+                        GrabPlayerInfo(hit);
+                        agent.SetDestination(hit.transform.position);
                         objRenderer.material.color = Color.red; // this is for testing purposes
                         noiseLocations.Clear();
                         noiseLocations.Add(hit.transform.position);
@@ -124,6 +131,17 @@ public class NewNoiseDetection : MonoBehaviour
         Debug.DrawRay(transform.position, leftDir * 20f, Color.yellow); // This is for testing ONLY!!
         Debug.DrawRay(transform.position, rightDir * 20f, Color.yellow); // This is for testing ONLY!!
         return false;
+    }
+
+    private void GrabPlayerInfo(Collider target)
+    {
+        Transform parent = target.transform.parent;
+        PlayerStatisticsTracker tracker = parent.GetComponent<PlayerStatisticsTracker>();
+
+        if(tracker != null){ 
+            PlayerData data = PlayerDataManager.Instance.GetPlayerData(tracker.playerID);
+            Debug.Log("Speed: " + data.currentSpeed); // for testing purposes only
+        }
     }
 
     private void UpdateLookDirection()
@@ -210,8 +228,10 @@ public class NewNoiseDetection : MonoBehaviour
 
     // Notes:
     /*
-        Createing field of view:
+        Createing field of view: DONE!
         - Use an overlapshere and only check at certain angles
         - Overlapshere for detecting noise 
+
+        Creating
     */
 }
